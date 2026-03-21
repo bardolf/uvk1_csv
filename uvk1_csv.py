@@ -637,6 +637,16 @@ def cmd_upload(args):
         encode_channel(ch, image, idx)
         print(f"  CH {ch['channel']:4d}: {ch['name']:16s}  {ch['freq_mhz']:.5f} MHz  {ch['mode']}  {ch['power']}", file=sys.stderr)
 
+    # clear channels not in CSV
+    if args.clear_other:
+        csv_indices = {ch["channel"] - 1 for ch in csv_channels}
+        cleared = 0
+        for idx in range(MR_CHANNELS_MAX):
+            if idx not in csv_indices:
+                clear_channel(image, idx)
+                cleared += 1
+        print(f"  Cleared {cleared} other channels", file=sys.stderr)
+
     if args.dry_run:
         print(f"Dry run: {len(csv_channels)} channels prepared, NOT uploading.", file=sys.stderr)
         return
@@ -723,6 +733,16 @@ def cmd_patch(args):
         encode_channel(ch, image, idx)
         print(f"  CH {ch['channel']:4d}: {ch['name']:16s}  {ch['freq_mhz']:.5f} MHz  {ch['mode']}  {ch['power']}", file=sys.stderr)
 
+    # clear channels not in CSV
+    if args.clear_other:
+        csv_indices = {ch["channel"] - 1 for ch in csv_channels}
+        cleared = 0
+        for idx in range(MR_CHANNELS_MAX):
+            if idx not in csv_indices:
+                clear_channel(image, idx)
+                cleared += 1
+        print(f"  Cleared {cleared} other channels", file=sys.stderr)
+
     with open(args.output, "wb") as f:
         f.write(bytes(image))
     print(f"  Patched {len(csv_channels)} channels → {args.output}", file=sys.stderr)
@@ -752,6 +772,8 @@ def main():
     p.add_argument("-p", "--port", default="/dev/ttyACM0", help="Serial port")
     p.add_argument("-i", "--input", required=True, help="Input CSV file")
     p.add_argument("--dry-run", action="store_true", help="Don't upload, just show changes")
+    p.add_argument("--clear-other", action="store_true",
+                   help="Clear all channels NOT in the CSV")
     p.set_defaults(func=cmd_upload)
 
     # backup
@@ -781,6 +803,8 @@ def main():
     p.add_argument("--image", required=True, help="Source binary image file")
     p.add_argument("-i", "--input", required=True, help="Input CSV file")
     p.add_argument("-o", "--output", required=True, help="Output binary image file")
+    p.add_argument("--clear-other", action="store_true",
+                   help="Clear all channels NOT in the CSV")
     p.set_defaults(func=cmd_patch)
 
     args = parser.parse_args()

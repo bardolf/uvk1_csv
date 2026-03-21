@@ -37,6 +37,15 @@ pip install pyserial
 ./uvk1_csv.py upload -i channels.csv
 ```
 
+### Program PMR446 channels only (wipe everything else)
+
+A ready-made `pmr446.csv` is included with all 16 standard PMR446 channels (NFM, 500 mW):
+
+```bash
+./uvk1_csv.py backup -o backup.img              # always backup first
+./uvk1_csv.py upload -i pmr446.csv --clear-other # upload PMR + delete rest
+```
+
 ### Backup before making changes
 
 ```bash
@@ -66,11 +75,12 @@ pip install pyserial
 
 ### upload
 
-Downloads the current image from radio, patches in the CSV channels, then uploads. Only channels present in the CSV are modified — everything else is preserved.
+Downloads the current image from radio, patches in the CSV channels, then uploads. Only channels present in the CSV are modified — everything else is preserved. Use `--clear-other` to delete all channels not in the CSV.
 
 ```bash
 ./uvk1_csv.py upload -i channels.csv
 ./uvk1_csv.py upload -i channels.csv --dry-run    # preview without writing
+./uvk1_csv.py upload -i channels.csv --clear-other # delete all channels NOT in the CSV
 ./uvk1_csv.py upload -i channels.csv -p /dev/ttyUSB0
 ```
 
@@ -91,6 +101,7 @@ Work with binary image files directly:
 ./uvk1_csv.py dump --image backup.img --channels 1-16 -o pmr.csv
 
 ./uvk1_csv.py patch --image backup.img -i channels.csv -o modified.img
+./uvk1_csv.py patch --image backup.img -i pmr446.csv -o clean.img --clear-other
 ```
 
 ### Common options
@@ -102,6 +113,7 @@ Work with binary image files directly:
 | `--skip-empty` | on | Skip empty channels in CSV output |
 | `--include-empty` | off | Include empty channel rows |
 | `--dry-run` | off | Preview changes without writing to radio |
+| `--clear-other` | off | Clear all channels NOT in the CSV (upload/patch only) |
 
 ## CSV Format
 
