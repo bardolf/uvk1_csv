@@ -1,0 +1,7 @@
+# Device backups / raw memory images — keep out of git
+*.img
+
+# Verification / scratch dumps from download
+overeni_*.csv
+backup_*.csv
+test_*.csv
